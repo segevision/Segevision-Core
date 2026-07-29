@@ -1,0 +1,31 @@
+{
+  "name": "segevision-core",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Segevision Website Factory — reusable design system + component engine",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "storybook": "turbo run storybook --filter=@segevision/docs",
+    "build-storybook": "turbo run build-storybook --filter=@segevision/docs",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,md,json}\"",
+    "e2e": "playwright test"
+  },
+  "devDependencies": {
+    "turbo": "^2.1.3",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "eslint": "^9.15.0",
+    "typescript-eslint": "^8.15.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "@playwright/test": "^1.49.0",
+    "@axe-core/playwright": "^4.10.1"
+  },
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=18"
+  }
+}

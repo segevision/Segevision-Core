@@ -1,0 +1,125 @@
+/* Token layer — required by @segevision/ui and the renderer inside the preview frame. */
+@import '@segevision/tokens/css/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Studio system.
+ *
+ * Four surfaces, not three: the canvas is the deepest plane and the preview sits on
+ * it as a raised object. That single relationship is what makes the preview read as a
+ * canvas rather than as an iframe dropped into a panel.
+ */
+:root {
+  --studio-canvas: 220 14% 95%;
+  --studio-panel: 0 0% 100%;
+  --studio-raised: 220 20% 98%;
+  --studio-sunken: 220 16% 96%;
+  --studio-line: 220 13% 89%;
+  --studio-line-strong: 220 12% 82%;
+  --studio-ink: 220 18% 11%;
+  --studio-soft: 220 10% 32%;
+  --studio-muted: 220 8% 48%;
+  --studio-faint: 220 8% 64%;
+  --studio-accent: 232 74% 58%;
+  --studio-accent-ink: 0 0% 100%;
+  --studio-accent-soft: 232 74% 96%;
+  --studio-ok: 152 46% 36%;
+  --studio-warn: 32 82% 44%;
+  --studio-danger: 0 66% 48%;
+
+  /* One easing, three durations. Anything outside this set is decoration. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --t-state: 120ms;
+  --t-move: 160ms;
+  --t-layer: 220ms;
+
+  color-scheme: light;
+}
+
+.dark {
+  --studio-canvas: 222 16% 5%;
+  --studio-panel: 222 14% 8%;
+  --studio-raised: 220 13% 11%;
+  --studio-sunken: 222 16% 6%;
+  --studio-line: 220 11% 16%;
+  --studio-line-strong: 220 10% 24%;
+  --studio-ink: 220 16% 92%;
+  --studio-soft: 220 12% 74%;
+  --studio-muted: 220 8% 55%;
+  --studio-faint: 220 8% 40%;
+  --studio-accent: 232 100% 74%;
+  --studio-accent-ink: 232 60% 10%;
+  --studio-accent-soft: 232 40% 16%;
+  --studio-ok: 152 42% 52%;
+  --studio-warn: 36 84% 60%;
+  --studio-danger: 0 70% 64%;
+
+  color-scheme: dark;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+
+/*
+ * `clip`, not `hidden`: it stops a tooltip or popover near the viewport edge from
+ * producing a sideways scrollbar without turning the body into a scroll container,
+ * which would break every sticky header in the studio.
+ */
+body { overflow-x: clip; }
+
+body {
+  background-color: hsl(var(--studio-canvas));
+  color: hsl(var(--studio-ink));
+  font-family: 'Assistant', 'Heebo', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: hsl(var(--studio-accent)); color: hsl(var(--studio-accent-ink)); }
+
+/* The preview document renders a client site, not the studio chrome. */
+body[data-surface='preview'] {
+  background-color: hsl(var(--color-surface));
+  color: hsl(var(--color-text-primary));
+  font-family: var(--font-body);
+  font-size: 16px;
+}
+
+/* One focus treatment across the whole product. */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid hsl(var(--studio-accent));
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.studio-scroll { scrollbar-width: thin; scrollbar-color: hsl(var(--studio-line-strong)) transparent; }
+.studio-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.studio-scroll::-webkit-scrollbar-thumb { background: hsl(var(--studio-line-strong)); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+.studio-scroll::-webkit-scrollbar-track { background: transparent; }
+
+/* Entrance for panel content — explains that the pane changed, then gets out of the way. */
+@keyframes studio-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.studio-enter { animation: studio-rise var(--t-layer) var(--ease-out) both; }
+
+@keyframes studio-pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: none; } }
+.studio-pop { animation: studio-pop var(--t-state) var(--ease-out) both; transform-origin: top var(--pop-origin, right); }
+
+@keyframes studio-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.studio-skeleton {
+  background: linear-gradient(90deg,
+    hsl(var(--studio-sunken)) 0%,
+    hsl(var(--studio-line)) 50%,
+    hsl(var(--studio-sunken)) 100%);
+  background-size: 200% 100%;
+  animation: studio-shimmer 1.4s linear infinite;
+}

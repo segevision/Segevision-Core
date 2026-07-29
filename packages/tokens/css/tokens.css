@@ -1,0 +1,517 @@
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+  --space-40: 160px;
+  --space-0_5: 2px;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+  --font-size-6xl: 3.75rem;
+  --font-size-7xl: 4.5rem;
+  --line-height-tight: 1.1;
+  --line-height-snug: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --radius-none: 0px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+  --breakpoint-mobile: 0px;
+  --breakpoint-tablet: 640px;
+  --breakpoint-desktop: 1024px;
+  --breakpoint-wide: 1440px;
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-base: 300ms;
+  --duration-slow: 450ms;
+  --duration-deliberate: 650ms;
+  --easing-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --easing-inOut: cubic-bezier(0.65, 0, 0.35, 1);
+  --easing-springSoft: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --easing-linear: linear;
+  --icon-size-16: 16px;
+  --icon-size-20: 20px;
+  --icon-size-24: 24px;
+  --icon-size-32: 32px;
+  --motion-scale: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-scale: 0;
+  }
+}
+
+[data-theme='medical'] {
+  --color-brand-primary: 199 89% 33%;
+  --color-brand-secondary: 24 95% 53%;
+  --color-accent: 24 95% 53%;
+  --color-surface: 0 0% 100%;
+  --color-surface-alt: 210 20% 98%;
+  --color-surface-inverse: 215 28% 17%;
+  --color-text-primary: 215 28% 17%;
+  --color-text-secondary: 215 14% 40%;
+  --color-text-inverse: 0 0% 100%;
+  --color-border-default: 214 20% 88%;
+  --color-border-focus: 199 89% 45%;
+  --color-action-default: 199 89% 33%;
+  --color-action-hover: 199 89% 28%;
+  --color-action-active: 199 89% 24%;
+  --color-action-disabled: 214 15% 80%;
+  --color-success: 142 71% 33%;
+  --color-warning: 38 92% 42%;
+  --color-danger: 0 72% 47%;
+  --color-info: 199 89% 42%;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-md);
+}
+
+[data-theme='medical'].dark {
+  --color-brand-primary: 199 89% 55%;
+  --color-brand-secondary: 24 95% 60%;
+  --color-accent: 24 95% 60%;
+  --color-surface: 215 28% 12%;
+  --color-surface-alt: 215 25% 16%;
+  --color-surface-inverse: 0 0% 100%;
+  --color-text-primary: 210 20% 96%;
+  --color-text-secondary: 215 14% 70%;
+  --color-text-inverse: 215 28% 12%;
+  --color-border-default: 215 20% 24%;
+  --color-border-focus: 199 89% 60%;
+  --color-action-default: 199 89% 55%;
+  --color-action-hover: 199 89% 62%;
+  --color-action-active: 199 89% 68%;
+  --color-action-disabled: 215 15% 30%;
+  --color-success: 142 65% 45%;
+  --color-warning: 38 92% 55%;
+  --color-danger: 0 72% 60%;
+  --color-info: 199 89% 60%;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-md);
+}
+
+[data-theme='luxury'] {
+  --color-brand-primary: 0 0% 12%;
+  --color-brand-secondary: 42 60% 50%;
+  --color-accent: 42 60% 50%;
+  --color-surface: 40 30% 98%;
+  --color-surface-alt: 40 20% 94%;
+  --color-surface-inverse: 0 0% 8%;
+  --color-text-primary: 0 0% 12%;
+  --color-text-secondary: 0 0% 35%;
+  --color-text-inverse: 40 30% 98%;
+  --color-border-default: 40 15% 85%;
+  --color-border-focus: 42 60% 45%;
+  --color-action-default: 0 0% 12%;
+  --color-action-hover: 0 0% 20%;
+  --color-action-active: 0 0% 6%;
+  --color-action-disabled: 40 10% 80%;
+  --color-success: 142 71% 33%;
+  --color-warning: 38 92% 42%;
+  --color-danger: 0 72% 47%;
+  --color-info: 199 89% 42%;
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-sm);
+}
+
+[data-theme='luxury'].dark {
+  --color-brand-primary: 42 60% 55%;
+  --color-brand-secondary: 40 30% 90%;
+  --color-accent: 42 60% 55%;
+  --color-surface: 0 0% 8%;
+  --color-surface-alt: 0 0% 12%;
+  --color-surface-inverse: 40 30% 98%;
+  --color-text-primary: 40 30% 95%;
+  --color-text-secondary: 40 10% 70%;
+  --color-text-inverse: 0 0% 8%;
+  --color-border-default: 0 0% 22%;
+  --color-border-focus: 42 60% 55%;
+  --color-action-default: 42 60% 55%;
+  --color-action-hover: 42 60% 62%;
+  --color-action-active: 42 60% 68%;
+  --color-action-disabled: 0 0% 25%;
+  --color-success: 142 65% 45%;
+  --color-warning: 38 92% 55%;
+  --color-danger: 0 72% 60%;
+  --color-info: 199 89% 60%;
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-sm);
+}
+
+[data-theme='corporate'] {
+  --color-brand-primary: 221 65% 28%;
+  --color-brand-secondary: 215 15% 45%;
+  --color-accent: 221 65% 45%;
+  --color-surface: 0 0% 100%;
+  --color-surface-alt: 210 20% 97%;
+  --color-surface-inverse: 221 39% 14%;
+  --color-text-primary: 221 39% 14%;
+  --color-text-secondary: 215 14% 40%;
+  --color-text-inverse: 0 0% 100%;
+  --color-border-default: 214 20% 88%;
+  --color-border-focus: 221 65% 45%;
+  --color-action-default: 221 65% 28%;
+  --color-action-hover: 221 65% 22%;
+  --color-action-active: 221 65% 18%;
+  --color-action-disabled: 214 15% 80%;
+  --color-success: 142 71% 33%;
+  --color-warning: 38 92% 42%;
+  --color-danger: 0 72% 47%;
+  --color-info: 199 89% 42%;
+  --font-display: 'IBM Plex Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-sm);
+}
+
+[data-theme='corporate'].dark {
+  --color-brand-primary: 221 65% 55%;
+  --color-brand-secondary: 215 15% 65%;
+  --color-accent: 221 65% 60%;
+  --color-surface: 221 30% 10%;
+  --color-surface-alt: 221 25% 14%;
+  --color-surface-inverse: 0 0% 100%;
+  --color-text-primary: 210 20% 96%;
+  --color-text-secondary: 215 14% 70%;
+  --color-text-inverse: 221 30% 10%;
+  --color-border-default: 221 20% 22%;
+  --color-border-focus: 221 65% 60%;
+  --color-action-default: 221 65% 55%;
+  --color-action-hover: 221 65% 62%;
+  --color-action-active: 221 65% 68%;
+  --color-action-disabled: 221 15% 28%;
+  --color-success: 142 65% 45%;
+  --color-warning: 38 92% 55%;
+  --color-danger: 0 72% 60%;
+  --color-info: 199 89% 60%;
+  --font-display: 'IBM Plex Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-sm);
+}
+
+[data-theme='fitness'] {
+  --color-brand-primary: 16 90% 50%;
+  --color-brand-secondary: 0 0% 10%;
+  --color-accent: 16 90% 50%;
+  --color-surface: 0 0% 100%;
+  --color-surface-alt: 0 0% 95%;
+  --color-surface-inverse: 0 0% 8%;
+  --color-text-primary: 0 0% 10%;
+  --color-text-secondary: 0 0% 35%;
+  --color-text-inverse: 0 0% 100%;
+  --color-border-default: 0 0% 88%;
+  --color-border-focus: 16 90% 50%;
+  --color-action-default: 16 90% 50%;
+  --color-action-hover: 16 90% 44%;
+  --color-action-active: 16 90% 38%;
+  --color-action-disabled: 0 0% 80%;
+  --color-success: 142 71% 33%;
+  --color-warning: 38 92% 42%;
+  --color-danger: 0 72% 47%;
+  --color-info: 199 89% 42%;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-xl);
+}
+
+[data-theme='fitness'].dark {
+  --color-brand-primary: 16 90% 55%;
+  --color-brand-secondary: 0 0% 95%;
+  --color-accent: 16 90% 55%;
+  --color-surface: 0 0% 7%;
+  --color-surface-alt: 0 0% 12%;
+  --color-surface-inverse: 0 0% 100%;
+  --color-text-primary: 0 0% 96%;
+  --color-text-secondary: 0 0% 70%;
+  --color-text-inverse: 0 0% 7%;
+  --color-border-default: 0 0% 20%;
+  --color-border-focus: 16 90% 60%;
+  --color-action-default: 16 90% 55%;
+  --color-action-hover: 16 90% 62%;
+  --color-action-active: 16 90% 68%;
+  --color-action-disabled: 0 0% 25%;
+  --color-success: 142 65% 45%;
+  --color-warning: 38 92% 55%;
+  --color-danger: 0 72% 60%;
+  --color-info: 199 89% 60%;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-xl);
+}
+
+[data-theme='restaurant'] {
+  --color-brand-primary: 9 65% 40%;
+  --color-brand-secondary: 40 30% 90%;
+  --color-accent: 84 25% 35%;
+  --color-surface: 40 40% 98%;
+  --color-surface-alt: 40 30% 93%;
+  --color-surface-inverse: 9 30% 14%;
+  --color-text-primary: 9 20% 15%;
+  --color-text-secondary: 9 10% 40%;
+  --color-text-inverse: 40 40% 98%;
+  --color-border-default: 40 20% 85%;
+  --color-border-focus: 9 65% 45%;
+  --color-action-default: 9 65% 40%;
+  --color-action-hover: 9 65% 34%;
+  --color-action-active: 9 65% 28%;
+  --color-action-disabled: 40 15% 80%;
+  --color-success: 142 71% 33%;
+  --color-warning: 38 92% 42%;
+  --color-danger: 0 72% 47%;
+  --color-info: 199 89% 42%;
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-lg);
+}
+
+[data-theme='restaurant'].dark {
+  --color-brand-primary: 9 65% 55%;
+  --color-brand-secondary: 40 30% 90%;
+  --color-accent: 84 30% 50%;
+  --color-surface: 9 20% 10%;
+  --color-surface-alt: 9 18% 14%;
+  --color-surface-inverse: 40 40% 98%;
+  --color-text-primary: 40 30% 95%;
+  --color-text-secondary: 40 10% 70%;
+  --color-text-inverse: 9 20% 10%;
+  --color-border-default: 9 15% 24%;
+  --color-border-focus: 9 65% 60%;
+  --color-action-default: 9 65% 55%;
+  --color-action-hover: 9 65% 62%;
+  --color-action-active: 9 65% 68%;
+  --color-action-disabled: 9 10% 28%;
+  --color-success: 142 65% 45%;
+  --color-warning: 38 92% 55%;
+  --color-danger: 0 72% 60%;
+  --color-info: 199 89% 60%;
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-lg);
+}
+
+[data-theme='hotel'] {
+  --color-brand-primary: 190 35% 30%;
+  --color-brand-secondary: 35 30% 85%;
+  --color-accent: 35 45% 55%;
+  --color-surface: 40 25% 98%;
+  --color-surface-alt: 40 20% 94%;
+  --color-surface-inverse: 190 25% 14%;
+  --color-text-primary: 190 20% 15%;
+  --color-text-secondary: 190 10% 40%;
+  --color-text-inverse: 40 25% 98%;
+  --color-border-default: 40 15% 86%;
+  --color-border-focus: 190 35% 40%;
+  --color-action-default: 190 35% 30%;
+  --color-action-hover: 190 35% 24%;
+  --color-action-active: 190 35% 20%;
+  --color-action-disabled: 40 10% 80%;
+  --color-success: 142 71% 33%;
+  --color-warning: 38 92% 42%;
+  --color-danger: 0 72% 47%;
+  --color-info: 199 89% 42%;
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-lg);
+}
+
+[data-theme='hotel'].dark {
+  --color-brand-primary: 190 35% 55%;
+  --color-brand-secondary: 35 30% 85%;
+  --color-accent: 35 45% 60%;
+  --color-surface: 190 20% 10%;
+  --color-surface-alt: 190 18% 14%;
+  --color-surface-inverse: 40 25% 98%;
+  --color-text-primary: 40 25% 95%;
+  --color-text-secondary: 40 10% 70%;
+  --color-text-inverse: 190 20% 10%;
+  --color-border-default: 190 15% 24%;
+  --color-border-focus: 190 35% 62%;
+  --color-action-default: 190 35% 55%;
+  --color-action-hover: 190 35% 62%;
+  --color-action-active: 190 35% 68%;
+  --color-action-disabled: 190 10% 28%;
+  --color-success: 142 65% 45%;
+  --color-warning: 38 92% 55%;
+  --color-danger: 0 72% 60%;
+  --color-info: 199 89% 60%;
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-lg);
+}
+
+[data-theme='legal'] {
+  --color-brand-primary: 160 40% 20%;
+  --color-brand-secondary: 42 35% 50%;
+  --color-accent: 42 35% 50%;
+  --color-surface: 0 0% 100%;
+  --color-surface-alt: 160 10% 96%;
+  --color-surface-inverse: 160 30% 12%;
+  --color-text-primary: 160 20% 14%;
+  --color-text-secondary: 160 8% 38%;
+  --color-text-inverse: 0 0% 100%;
+  --color-border-default: 160 12% 86%;
+  --color-border-focus: 160 40% 30%;
+  --color-action-default: 160 40% 20%;
+  --color-action-hover: 160 40% 16%;
+  --color-action-active: 160 40% 12%;
+  --color-action-disabled: 160 8% 80%;
+  --color-success: 142 71% 33%;
+  --color-warning: 38 92% 42%;
+  --color-danger: 0 72% 47%;
+  --color-info: 199 89% 42%;
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-sm);
+}
+
+[data-theme='legal'].dark {
+  --color-brand-primary: 160 40% 45%;
+  --color-brand-secondary: 42 35% 60%;
+  --color-accent: 42 35% 60%;
+  --color-surface: 160 25% 9%;
+  --color-surface-alt: 160 22% 13%;
+  --color-surface-inverse: 0 0% 100%;
+  --color-text-primary: 160 10% 95%;
+  --color-text-secondary: 160 8% 68%;
+  --color-text-inverse: 160 25% 9%;
+  --color-border-default: 160 15% 22%;
+  --color-border-focus: 160 40% 55%;
+  --color-action-default: 160 40% 45%;
+  --color-action-hover: 160 40% 52%;
+  --color-action-active: 160 40% 58%;
+  --color-action-disabled: 160 10% 26%;
+  --color-success: 142 65% 45%;
+  --color-warning: 38 92% 55%;
+  --color-danger: 0 72% 60%;
+  --color-info: 199 89% 60%;
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-sm);
+}
+
+[data-theme='construction'] {
+  --color-brand-primary: 32 85% 45%;
+  --color-brand-secondary: 215 15% 35%;
+  --color-accent: 205 60% 40%;
+  --color-surface: 0 0% 100%;
+  --color-surface-alt: 210 10% 96%;
+  --color-surface-inverse: 215 20% 14%;
+  --color-text-primary: 215 20% 14%;
+  --color-text-secondary: 215 10% 40%;
+  --color-text-inverse: 0 0% 100%;
+  --color-border-default: 214 15% 86%;
+  --color-border-focus: 32 85% 45%;
+  --color-action-default: 32 85% 45%;
+  --color-action-hover: 32 85% 38%;
+  --color-action-active: 32 85% 32%;
+  --color-action-disabled: 214 10% 80%;
+  --color-success: 142 71% 33%;
+  --color-warning: 38 92% 42%;
+  --color-danger: 0 72% 47%;
+  --color-info: 199 89% 42%;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-sm);
+}
+
+[data-theme='construction'].dark {
+  --color-brand-primary: 32 85% 55%;
+  --color-brand-secondary: 215 15% 65%;
+  --color-accent: 205 60% 55%;
+  --color-surface: 215 18% 10%;
+  --color-surface-alt: 215 16% 14%;
+  --color-surface-inverse: 0 0% 100%;
+  --color-text-primary: 210 10% 95%;
+  --color-text-secondary: 215 8% 68%;
+  --color-text-inverse: 215 18% 10%;
+  --color-border-default: 215 12% 24%;
+  --color-border-focus: 32 85% 60%;
+  --color-action-default: 32 85% 55%;
+  --color-action-hover: 32 85% 62%;
+  --color-action-active: 32 85% 68%;
+  --color-action-disabled: 215 10% 28%;
+  --color-success: 142 65% 45%;
+  --color-warning: 38 92% 55%;
+  --color-danger: 0 72% 60%;
+  --color-info: 199 89% 60%;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-sm);
+}
+
+[data-theme='technology'] {
+  --color-brand-primary: 255 85% 60%;
+  --color-brand-secondary: 0 0% 20%;
+  --color-accent: 255 85% 60%;
+  --color-surface: 0 0% 100%;
+  --color-surface-alt: 240 10% 97%;
+  --color-surface-inverse: 240 10% 6%;
+  --color-text-primary: 240 10% 10%;
+  --color-text-secondary: 240 6% 40%;
+  --color-text-inverse: 0 0% 100%;
+  --color-border-default: 240 10% 88%;
+  --color-border-focus: 255 85% 60%;
+  --color-action-default: 255 85% 60%;
+  --color-action-hover: 255 85% 53%;
+  --color-action-active: 255 85% 46%;
+  --color-action-disabled: 240 8% 80%;
+  --color-success: 142 71% 33%;
+  --color-warning: 38 92% 42%;
+  --color-danger: 0 72% 47%;
+  --color-info: 199 89% 42%;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-md);
+}
+
+[data-theme='technology'].dark {
+  --color-brand-primary: 255 85% 68%;
+  --color-brand-secondary: 0 0% 90%;
+  --color-accent: 255 85% 68%;
+  --color-surface: 240 10% 6%;
+  --color-surface-alt: 240 10% 10%;
+  --color-surface-inverse: 0 0% 100%;
+  --color-text-primary: 240 6% 96%;
+  --color-text-secondary: 240 6% 68%;
+  --color-text-inverse: 240 10% 6%;
+  --color-border-default: 240 8% 20%;
+  --color-border-focus: 255 85% 68%;
+  --color-action-default: 255 85% 68%;
+  --color-action-hover: 255 85% 74%;
+  --color-action-active: 255 85% 80%;
+  --color-action-disabled: 240 8% 26%;
+  --color-success: 142 65% 45%;
+  --color-warning: 38 92% 55%;
+  --color-danger: 0 72% 60%;
+  --color-info: 199 89% 60%;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: var(--radius-md);
+}

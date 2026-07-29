@@ -1,0 +1,48 @@
+@import '@segevision/tokens/css/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+  /* Sticky header height + breathing room, so anchored sections never land under it. */
+  scroll-padding-top: 6rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  background-color: hsl(var(--color-surface));
+  color: hsl(var(--color-text-primary));
+  font-feature-settings: 'kern';
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Hebrew sets tighter than Latin at display sizes: without this, Heebo's default
+ * tracking makes large headlines look loose and generic. Applied only to the display
+ * face so body copy keeps its natural, readable rhythm.
+ */
+.font-display {
+  font-feature-settings: 'kern';
+}
+
+::selection {
+  background-color: hsl(var(--color-accent) / 0.35);
+  color: hsl(var(--color-text-primary));
+}

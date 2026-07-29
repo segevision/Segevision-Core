@@ -1,0 +1,26 @@
+node_modules
+dist
+.next
+.turbo
+storybook-static
+coverage
+test-results
+playwright-report
+.DS_Store
+*.log
+
+# platform project storage (local dev)
+.data
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+
+# IDE
+.vscode/settings.json
+
+# Temporary
+*.tmp
+*.bak
