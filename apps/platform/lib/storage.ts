@@ -1,7 +1,6 @@
 import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import {
-  MigrationError,
   migrateProject,
   parseProject,
   type Project,
@@ -11,13 +10,18 @@ import { physiothleticsProjectV1 } from './seed-physiothletics';
 import { DATA_ROOT } from './data-root';
 
 /**
- * Project storage — v1.
+ * Project storage — the file-backed implementation.
  *
- * Every read and write goes through the ProjectStore interface below. The file-backed
- * implementation is deliberately the only thing that knows about the filesystem, so
- * moving to Supabase later means writing one more class that satisfies the same five
- * methods; nothing in the API routes or the editor changes. See MIGRATION note at the
- * bottom of this file.
+ * Every read and write goes through the ProjectStore interface below, and this file is
+ * the only thing in the app that knows about the filesystem. The Supabase
+ * implementation of the same interface lives in ./stores/supabase-project-store.ts, and
+ * ./project-store.ts decides which one a request gets.
+ *
+ * This store is a local-development and disaster-recovery adapter now, not the
+ * production path: a serverless filesystem is read-only apart from an ephemeral /tmp,
+ * so a deployment that reached this class would accept saves and then lose them.
+ * ./project-store.ts refuses to select it in production unless SEGEVISION_DATA_ROOT
+ * proves there is a real volume behind it.
  */
 
 export interface ProjectStore {
@@ -65,7 +69,7 @@ function assertSafeId(id: string): void {
   }
 }
 
-class FileProjectStore implements ProjectStore {
+export class FileProjectStore implements ProjectStore {
   /**
    * The first run of a fresh clone should not show an empty dashboard — Physiothletics
    * is written in as a real, editable project rather than being special-cased in the UI.
@@ -156,21 +160,13 @@ class FileProjectStore implements ProjectStore {
   }
 }
 
-export const projectStore: ProjectStore = new FileProjectStore();
-export const PROJECT_DATA_DIR = DATA_DIR;
-
 /**
- * MIGRATION TO SUPABASE
- * ---------------------
- * 1. Create a `projects` table: id (text, pk), owner_id (uuid), data (jsonb),
- *    updated_at (timestamptz). The whole project document lives in `data`, so the
- *    Zod schema stays the single source of truth and no migration is needed when a
- *    content field is added.
- * 2. Add SupabaseProjectStore implementing this same interface — list() selects the
- *    summary columns only, get() selects data, update() upserts.
- * 3. Swap the export on the last line. The API routes, the editor and the renderer
- *    are untouched because none of them import anything from this file except
- *    `projectStore`.
- * 4. Row Level Security on owner_id becomes the auth boundary; the routes then read
- *    the session instead of trusting the caller. That is the only new code path.
+ * Deliberately not exported as a bare `projectStore` any more.
+ *
+ * That name used to be the app-wide default, which is exactly the shape of mistake this
+ * migration has to prevent: an import that silently writes client data to a disk that
+ * will not exist tomorrow. Callers go through `resolveProjectStore()` in
+ * ./project-store.ts, which makes the choice explicit and refuses the unsafe one.
  */
+export const fileProjectStore: ProjectStore = new FileProjectStore();
+export const PROJECT_DATA_DIR = DATA_DIR;

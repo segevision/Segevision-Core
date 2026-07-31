@@ -29,6 +29,7 @@ import {
   Tooltip,
 } from '../components/studio';
 import { ThemeToggle } from '../components/theme-toggle';
+import { SignOutButton } from '../components/sign-out-button';
 import { ProjectThumbnail } from '../components/project-thumbnail';
 import { ReadinessRing, ReadinessChecklist } from '../components/readiness-ring';
 
@@ -113,6 +114,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <SignOutButton />
             <StudioLink href="/new" variant="primary" size="sm">
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
                 <path d="M12 5v14M5 12h14" strokeLinecap="round" />

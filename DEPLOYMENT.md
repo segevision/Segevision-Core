@@ -68,8 +68,8 @@ Classification used throughout:
 
 | Item | Class | Detail |
 | --- | --- | --- |
-| No secrets in repo | **READY** | No `.env*` files exist anywhere; the only env vars referenced are `SEGEVISION_DATA_ROOT`, `SEGEVISION_DATA_DIR`, `SEGEVISION_MEDIA_DIR`, and `NODE_ENV`. Clean slate. |
-| No `.env.example` | **CAN WAIT** | Should exist once Supabase keys are introduced, so the required set is self-documenting. |
+| No secrets in repo | **READY** | Only `apps/platform/.env.local` exists, and it is gitignored. It holds the two public Supabase values; no service-role key anywhere. Other env vars referenced: `SEGEVISION_DATA_ROOT`, `SEGEVISION_DATA_DIR`, `SEGEVISION_MEDIA_DIR`, `NODE_ENV`. |
+| No `.env.example` | **READY** *(added)* | `apps/platform/.env.example` documents the required set, including which keys must never be set in Vercel. |
 
 ### 2.7 Vercel compatibility
 
@@ -211,9 +211,11 @@ private staging URL first, custom domain only after the client-facing flows are 
 | Name | Scope | Notes |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | all | Public by design. |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | all | Public by design; RLS is what protects data. |
-| `SUPABASE_SERVICE_ROLE_KEY` | **migration script only — never in Vercel** | Bypasses RLS. |
-| `SEGEVISION_DATA_ROOT` | unused after Phase 3 | Kept as the local-dev escape hatch. |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | all | Public by design; RLS is what protects data. This is the current dashboard's `sb_publishable_…` key, which replaces the older `anon` JWT — the name the code reads is the publishable one. |
+| `PROJECT_STORE` | all | **Required.** Must be `supabase`. Unset is refused in production, and `file` is refused unless `SEGEVISION_DATA_ROOT` proves a real volume exists — a serverless filesystem would accept every save and lose it at the next cold start. |
+| `SUPABASE_SERVICE_ROLE_KEY` | **not used anywhere** | Nothing in the repo needs it. The migration script signs in as the owner instead, so every write goes through the same RLS policies as the app. Never add it to Vercel. |
+| `SEGEVISION_DATA_ROOT` | do not set on Vercel | Local adapter only. On Vercel, setting it would re-enable `PROJECT_STORE=file` and defeat the guard above. |
+| `NEXT_DIST_DIR` | do not set on Vercel | Local verification only; Vercel expects the default `.next`. |
 
 ### 4.3 Access protection
 
@@ -227,6 +229,72 @@ either one as a substitute for the other.
 Keep SQL in `supabase/migrations/` and apply with the Supabase CLI
 (`supabase db push`) against staging first. Never edit schema through the dashboard
 UI — an undocumented schema cannot be recreated or reviewed.
+
+---
+
+## Phase 5 — Cutover runbook
+
+Phases 3 and 4 above are **implemented** as of 2026-07-30. What follows is the ordered
+list of steps that have *not* been performed, because each one writes to external
+infrastructure. Do them in this order; every step is verifiable before the next.
+
+### 5.1 What is already in the repo
+
+| Piece | Where |
+| --- | --- |
+| `projects` table, constraints, indexes, RLS policies | `supabase/migrations/20260730120000_projects.sql` |
+| `project-media` bucket + Storage RLS policies | `supabase/migrations/20260730120100_project_media_bucket.sql` |
+| Browser / server / middleware Supabase clients | `apps/platform/lib/supabase/` |
+| `SupabaseProjectStore` | `apps/platform/lib/stores/supabase-project-store.ts` |
+| `SupabaseMediaStore` | `apps/platform/lib/stores/supabase-media-store.ts` |
+| Backend selection rule (no silent fallback) | `apps/platform/lib/store-mode.ts` |
+| Auth: login page, sign-in/out actions, route gate | `apps/platform/app/login/`, `apps/platform/lib/auth-actions.ts`, `apps/platform/lib/supabase/middleware.ts` |
+| Migration script | `scripts/migrate-local-projects-to-supabase.ts` |
+| Browser verification | `e2e/platform/`, `playwright.platform.config.ts` |
+
+### 5.2 Steps
+
+1. **Apply the migrations.** Either `supabase link --project-ref <ref> && supabase db push`,
+   or paste both files into the dashboard SQL editor in filename order.
+   Verify: `select * from pg_policies where tablename = 'projects';` returns four rows.
+2. **Create the studio account.** Authentication → Users → Add user, with a real email and
+   a strong password. Do **not** enable public sign-up; there is no sign-up UI, and adding
+   one would turn a private studio tool into an open one.
+3. **Dry-run the migration.** From the repo root:
+   `SUPABASE_MIGRATION_EMAIL=… SUPABASE_MIGRATION_PASSWORD=… pnpm migrate:projects`
+   Writes nothing. Read the report it prints and the JSON it saves under
+   `.data/migration-reports/`.
+4. **Run it for real.** Same command with `-- --execute`. It validates every document
+   before writing anything, aborts entirely on the first invalid one, uploads referenced
+   media, rewrites each `src`, reads every row back, re-validates it, and compares counts.
+5. **Flip the backend.** `PROJECT_STORE=supabase` in `apps/platform/.env.local`, restart.
+6. **Verify in a browser.**
+   `NEXT_DIST_DIR=.next-verify pnpm --filter @segevision/platform build` then
+   `NEXT_DIST_DIR=.next-verify PLATFORM_PORT=3599 PLATFORM_TEST_EMAIL=… PLATFORM_TEST_PASSWORD=… pnpm e2e:platform`.
+   All specs run; the signed-in ones no longer skip.
+7. **Only then** create the Vercel project with the settings in §4.1 and §4.2, and turn on
+   Deployment Protection (§4.3) *before* the first deploy.
+
+### 5.3 Rollback
+
+`PROJECT_STORE=file` and restart. `.data` is untouched by the migration — it never
+deletes or rewrites a local file, and every local document still points at its local
+image. The script prints the exact `delete from public.projects where id in (…)`
+statement for undoing the remote side.
+
+Keep `.data` for at least a month after cutover, and enable Point-in-Time Recovery on the
+Supabase project before treating it as the only copy.
+
+### 5.4 Deferred, with reasons
+
+| Item | Status | Reason |
+| --- | --- | --- |
+| Optimistic concurrency on save | **still open** (see §2.1) | Last-write-wins survives the migration. Fixing it needs an `updated_at` precondition in `PUT` plus a Hebrew conflict UI in the editor; it is a feature, not part of the move. |
+| Version history in Postgres | **not migrated** | `lib/history.ts` is `localStorage`, not server disk, so it is not a deployment blocker. Consequence: history is per-browser and does not follow the account. |
+| Editor presets | **not migrated** | Same reason — `lib/presets.ts` is `localStorage`. |
+| Orphaned media on project delete | **deliberate** | Deleting a project leaves its objects in the bucket, because an accidental delete is only recoverable while the images still exist. Cleanup query when it matters: list `storage.objects` under `<owner>/` whose second path segment is not in `select id from projects`. |
+| Security headers (HSTS/CSP/frame policy) | **still open** (see §2.7) | Untouched by this work. The media route sets its own `sandbox` CSP; the app-wide headers are a separate change. |
+| Dashboard reads every project in full | **still open** | `app/page.tsx` calls `fetchProject` per card for the readiness ring, which is now N round trips to Postgres instead of N file reads. Correct, but worth batching before the project count grows. |
 
 ### 4.5 Rollback
 

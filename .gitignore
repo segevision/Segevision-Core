@@ -1,11 +1,14 @@
 node_modules
 dist
 .next
+# NEXT_DIST_DIR builds, used to verify a production build beside a running dev server
+.next-*
 .turbo
 storybook-static
 coverage
 test-results
 playwright-report
+playwright-report-platform
 .DS_Store
 *.log
 

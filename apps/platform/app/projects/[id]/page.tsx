@@ -38,6 +38,7 @@ import {
   Tooltip,
 } from '../../../components/studio';
 import { ThemeToggle } from '../../../components/theme-toggle';
+import { SignOutButton } from '../../../components/sign-out-button';
 import { PreviewPanel, type PreviewSettings } from '../../../components/preview-panel';
 import { useFieldFocus, type FieldFocus, type Updater } from '../../../components/editor-shared';
 import { OverviewPanel } from '../../../components/panel-overview';
@@ -517,6 +518,7 @@ export default function ProjectEditorPage() {
 
           <StatusPill tone={SAVE_TONE[saveState]} className="hidden tablet:inline-flex">{SAVE_LABEL[saveState]}</StatusPill>
           <ThemeToggle />
+          <SignOutButton />
           <StudioButton size="sm" variant="secondary" onClick={() => setPresent(true)}>תצוגה מלאה</StudioButton>
           <StudioButton
             size="sm"

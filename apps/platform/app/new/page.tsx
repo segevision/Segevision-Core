@@ -17,6 +17,7 @@ import { createProject } from '../../lib/client';
 import { slugify } from '../../lib/format';
 import { Field, GroupLabel, StudioButton, TextInput, SelectInput } from '../../components/studio';
 import { ThemeToggle } from '../../components/theme-toggle';
+import { SignOutButton } from '../../components/sign-out-button';
 import { VariantMini } from '../../components/variant-picker';
 
 /** Palette per preset, mirrored from the template defaults so the swatch is truthful. */
@@ -100,6 +101,7 @@ export default function NewProjectPage() {
             חזרה לפרויקטים
           </Link>
           <ThemeToggle />
+          <SignOutButton />
         </div>
       </header>
 

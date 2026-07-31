@@ -3,11 +3,31 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "storybook-static/**", "css/**"]
+      "outputs": ["dist/**", ".next/**", "storybook-static/**", "css/**"],
+      // NEXT_PUBLIC_ values are inlined into the client bundle at build time, so a change
+      // to one has to invalidate the cached build. Without this, changing a Supabase key
+      // would replay a .next directory carrying the old one.
+      "env": [
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "PROJECT_STORE",
+        "SEGEVISION_DATA_ROOT"
+      ]
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      // Turbo 2 runs tasks in strict env mode: an undeclared variable is not passed
+      // through. Declared here so `PROJECT_STORE=supabase pnpm dev` from the repo root
+      // behaves the same as setting it in .env.local.
+      "env": [
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "PROJECT_STORE",
+        "SEGEVISION_DATA_ROOT",
+        "SEGEVISION_DATA_DIR",
+        "SEGEVISION_MEDIA_DIR"
+      ]
     },
     "lint": {
       "dependsOn": ["^build"]

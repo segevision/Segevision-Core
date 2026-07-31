@@ -1,0 +1,22 @@
+{
+  // Repo-root scripts are Node programs, not part of any app's build. They get their own
+  // project so `pnpm typecheck:scripts` covers them: a migration that only ever runs once,
+  // against real client data, is the last place to discover a type error at runtime.
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "allowJs": false
+  },
+  "include": [
+    "**/*.ts",
+    "../packages/renderer/src/schema.ts",
+    "../packages/renderer/src/migrate.ts"
+  ]
+}

@@ -184,7 +184,7 @@ function MediaSlotEditor({ slot, project, update }: PanelProps & { slot: MediaSl
     setBusy(true);
     setError(null);
     try {
-      const uploaded = await uploadMedia(project.id, file);
+      const uploaded = await uploadMedia(project.id, slot.slot, file);
       writeEntry({ src: uploaded.url });
     } catch (cause) {
       setError((cause as Error).message);

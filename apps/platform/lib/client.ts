@@ -1,10 +1,27 @@
 import type { Project, ProjectSummary } from '@segevision/renderer';
 
-/** Thin fetch layer. Everything the editor does goes through these four calls. */
+/** Thin fetch layer. Everything the editor does goes through these calls. */
+
+/**
+ * A 401 means the session expired while the editor was open — most often after a laptop
+ * came back from sleep.
+ *
+ * Sending the browser to the login screen is the only useful response. Without this the
+ * editor would sit there reporting "save failed" on every autosave, with the work still
+ * in memory and no indication that signing in again is all that is needed. The current
+ * path is preserved so signing in returns to the same project.
+ */
+function redirectToLogin(): void {
+  if (typeof window === 'undefined') return;
+  if (window.location.pathname === '/login') return;
+  const next = `${window.location.pathname}${window.location.search}`;
+  window.location.assign(`/login?next=${encodeURIComponent(next)}`);
+}
 
 async function handle<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
+    if (response.status === 401) redirectToLogin();
     throw new Error(body.error ?? 'הפעולה נכשלה');
   }
   return response.json() as Promise<T>;
@@ -52,19 +69,32 @@ export async function deleteProject(id: string): Promise<void> {
 
 export interface UploadedMedia {
   url: string;
+  /** Backend path. Stored alongside the url so a future delete need not parse it back. */
+  key: string;
   fileName: string;
   size: number;
   contentType: string;
 }
 
-export async function uploadMedia(projectId: string, file: File): Promise<UploadedMedia> {
+/**
+ * The slot travels with the upload so Supabase Storage can file the object under
+ * `<owner>/<project>/<slot>/…`, which is what makes the bucket readable by a human
+ * looking for "the hero image of this project".
+ */
+export async function uploadMedia(
+  projectId: string,
+  slot: string,
+  file: File,
+): Promise<UploadedMedia> {
   const form = new FormData();
   form.append('projectId', projectId);
+  form.append('slot', slot);
   form.append('file', file);
 
   const response = await fetch('/api/media', { method: 'POST', body: form });
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
+    if (response.status === 401) redirectToLogin();
     throw new Error(body.error ?? 'ההעלאה נכשלה');
   }
   const data = (await response.json()) as { media: UploadedMedia };
