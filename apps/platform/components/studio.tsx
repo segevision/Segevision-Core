@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@segevision/utils';
+import { DropdownMenu, Tooltip as FloatingTooltip } from './floating';
 
 /**
  * Studio primitives.
@@ -46,7 +47,12 @@ export interface StudioButtonProps extends React.ButtonHTMLAttributes<HTMLButton
 
 export const StudioButton = React.forwardRef<HTMLButtonElement, StudioButtonProps>(
   ({ variant = 'secondary', size = 'md', className, ...props }, ref) => (
-    <button ref={ref} type="button" className={cn(base, variants[variant], sizes[size], className)} {...props} />
+    <button
+      ref={ref}
+      type="button"
+      className={cn(base, variants[variant], sizes[size], className)}
+      {...props}
+    />
   ),
 );
 StudioButton.displayName = 'StudioButton';
@@ -70,8 +76,16 @@ export const IconButton = React.forwardRef<
     type="button"
     className={cn(
       base,
+      /*
+       * The visual box stays compact, but a pseudo-element extends the hit area to at
+       * least 44x44 on coarse pointers. Growing the button itself would have pushed every
+       * toolbar apart; growing only what the finger has to find costs no layout.
+       */
+      'relative touch:after:absolute touch:after:left-1/2 touch:after:top-1/2 touch:after:h-11 touch:after:w-11 touch:after:-translate-x-1/2 touch:after:-translate-y-1/2 touch:after:content-[""]',
       size === 'xs' ? 'h-7 w-7' : size === 'sm' ? 'h-8 w-8' : 'h-10 w-10',
-      active ? 'bg-studio-accent-soft text-studio-accent' : 'text-studio-muted hover:bg-studio-raised hover:text-studio-ink',
+      active
+        ? 'bg-studio-accent-soft text-studio-accent'
+        : 'text-studio-muted hover:bg-studio-raised hover:text-studio-ink',
       className,
     )}
     {...props}
@@ -82,8 +96,12 @@ IconButton.displayName = 'IconButton';
 /* --------------------------------------------------------------- tooltip */
 
 /**
- * Tooltip that also announces itself: the label is rendered into an sr-only span so
- * an icon control is never silent to a screen reader, even before hover.
+ * Tooltip. Signature unchanged; positioning now comes from ./floating.
+ *
+ * The old version centred itself with `start-1/2 translate-x-1/2` and an RTL override that
+ * pushed it the wrong way, so in this RTL document every tooltip sat a half-width off its
+ * trigger. It was also `absolute`, so the ones inside a project card were clipped by the
+ * card. Both problems disappear with portal + real measurement.
  */
 export function Tooltip({
   label,
@@ -97,26 +115,9 @@ export function Tooltip({
   side?: 'bottom' | 'top';
 }) {
   return (
-    <span className="group/tt relative inline-flex">
+    <FloatingTooltip label={label} shortcut={shortcut} placement={side}>
       {children}
-      <span
-        role="tooltip"
-        className={cn(
-          /*
-           * `hidden` until hover, never merely transparent: a laid-out tooltip is still
-           * a laid-out box, and a row of them widens the page. The fade comes from an
-           * animation rather than a transition, because animations replay on their own
-           * every time display flips from none to block.
-           */
-          'studio-pop pointer-events-none absolute z-50 hidden max-w-[min(15rem,60vw)] rounded-md bg-studio-ink px-2 py-1 text-ui-xs font-medium text-studio-panel shadow-studio-md group-hover/tt:block group-focus-within/tt:block',
-          side === 'bottom' ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+6px)]',
-          'start-1/2 translate-x-1/2 rtl:-translate-x-1/2',
-        )}
-      >
-        {label}
-        {shortcut && <span className="ms-2 font-studio-mono opacity-60" dir="ltr">{shortcut}</span>}
-      </span>
-    </span>
+    </FloatingTooltip>
   );
 }
 
@@ -141,7 +142,11 @@ export function Panel({
         <header className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             {title && <h2 className="text-ui-lg font-bold text-studio-ink">{title}</h2>}
-            {description && <p className="mt-1 max-w-[52ch] text-ui-sm leading-relaxed text-studio-muted">{description}</p>}
+            {description && (
+              <p className="mt-1 max-w-[52ch] text-ui-sm leading-relaxed text-studio-muted">
+                {description}
+              </p>
+            )}
           </div>
           {action}
         </header>
@@ -152,9 +157,22 @@ export function Panel({
 }
 
 /** Section heading inside a panel — the rung between panel title and field label. */
-export function GroupLabel({ children, className }: { children: React.ReactNode; className?: string }) {
+export function GroupLabel({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <p className={cn('text-ui-label font-bold uppercase tracking-wider text-studio-faint', className)}>{children}</p>
+    <p
+      className={cn(
+        'text-ui-label font-bold uppercase tracking-wider text-studio-faint',
+        className,
+      )}
+    >
+      {children}
+    </p>
   );
 }
 
@@ -179,8 +197,12 @@ export function Field({
       <label htmlFor={id} className="text-ui-sm font-semibold text-studio-soft">
         {label}
       </label>
-      {React.isValidElement(children) ? React.cloneElement(children as React.ReactElement, { id }) : children}
-      {hint && !error && <span className="text-ui-xs leading-relaxed text-studio-faint">{hint}</span>}
+      {React.isValidElement(children)
+        ? React.cloneElement(children as React.ReactElement, { id })
+        : children}
+      {hint && !error && (
+        <span className="text-ui-xs leading-relaxed text-studio-faint">{hint}</span>
+      )}
       {error && <span className="text-ui-xs font-medium text-studio-danger">{error}</span>}
     </div>
   );
@@ -193,40 +215,62 @@ const control =
   'hover:bg-studio-raised hover:ring-studio-line focus:bg-studio-panel focus:ring-studio-accent focus:outline-none ' +
   'disabled:cursor-not-allowed disabled:opacity-55';
 
-export const TextInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  ({ className, ...props }, ref) => <input ref={ref} className={cn(control, 'h-10', className)} {...props} />,
-);
+export const TextInput = React.forwardRef<
+  HTMLInputElement,
+  React.InputHTMLAttributes<HTMLInputElement>
+>(({ className, ...props }, ref) => (
+  <input ref={ref} className={cn(control, 'h-10', className)} {...props} />
+));
 TextInput.displayName = 'TextInput';
 
-export const TextArea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  ({ className, rows = 3, ...props }, ref) => (
-    <textarea ref={ref} rows={rows} className={cn(control, 'resize-y py-2.5 leading-relaxed', className)} {...props} />
-  ),
-);
+export const TextArea = React.forwardRef<
+  HTMLTextAreaElement,
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>
+>(({ className, rows = 3, ...props }, ref) => (
+  <textarea
+    ref={ref}
+    rows={rows}
+    className={cn(control, 'resize-y py-2.5 leading-relaxed', className)}
+    {...props}
+  />
+));
 TextArea.displayName = 'TextArea';
 
-export const SelectInput = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement>>(
-  ({ className, children, ...props }, ref) => (
-    <div className="relative">
-      <select ref={ref} className={cn(control, 'h-10 cursor-pointer appearance-none pe-9', className)} {...props}>
-        {children}
-      </select>
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 24 24"
-        className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-studio-faint"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      >
-        <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </div>
-  ),
-);
+export const SelectInput = React.forwardRef<
+  HTMLSelectElement,
+  React.SelectHTMLAttributes<HTMLSelectElement>
+>(({ className, children, ...props }, ref) => (
+  <div className="relative">
+    <select
+      ref={ref}
+      className={cn(control, 'h-10 cursor-pointer appearance-none pe-9', className)}
+      {...props}
+    >
+      {children}
+    </select>
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-studio-faint"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+    >
+      <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  </div>
+));
 SelectInput.displayName = 'SelectInput';
 
-export function ColorInput({ value, onChange, id }: { value: string; onChange: (value: string) => void; id?: string }) {
+export function ColorInput({
+  value,
+  onChange,
+  id,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  id?: string;
+}) {
   const [draft, setDraft] = React.useState(value);
   React.useEffect(() => setDraft(value), [value]);
 
@@ -280,7 +324,10 @@ export function Segmented<T extends string>({
     <div
       role="radiogroup"
       aria-label={label}
-      className={cn('inline-flex rounded-lg bg-studio-sunken p-0.5 ring-1 ring-inset ring-studio-line', className)}
+      className={cn(
+        'inline-flex rounded-lg bg-studio-sunken p-0.5 ring-1 ring-inset ring-studio-line',
+        className,
+      )}
     >
       {options.map((option) => {
         const active = option.value === value;
@@ -368,7 +415,11 @@ export function Toggle({
       className={cn(
         'relative shrink-0 rounded-full transition-colors duration-[var(--t-state)] ease-studio',
         size === 'sm' ? 'h-4 w-7' : 'h-5 w-9',
-        checked ? (tone === 'quiet' ? 'bg-studio-soft' : 'bg-studio-accent') : 'bg-studio-line-strong',
+        checked
+          ? tone === 'quiet'
+            ? 'bg-studio-soft'
+            : 'bg-studio-accent'
+          : 'bg-studio-line-strong',
       )}
     >
       <span
@@ -384,74 +435,53 @@ export function Toggle({
 }
 
 /** Overflow menu. Replaces the row of equal-weight buttons the previous build used. */
+/**
+ * The three-dot action menu.
+ *
+ * The call signature is unchanged; the implementation is now DropdownMenu from
+ * ./floating, which renders through a portal with real collision detection. The previous
+ * version positioned itself `absolute` inside its parent, which meant the project card's
+ * `overflow-hidden` clipped it away entirely and it always opened downward regardless of
+ * remaining space. See components/floating.tsx for why a portal — not `position: fixed` —
+ * was the only workable fix.
+ */
 export function Menu({
   label,
   items,
   align = 'end',
 }: {
   label: string;
-  items: { id: string; label: string; onSelect: () => void; tone?: 'default' | 'danger'; hint?: string }[];
+  items: {
+    id: string;
+    label: string;
+    onSelect: () => void;
+    tone?: 'default' | 'danger';
+    hint?: string;
+  }[];
   align?: 'start' | 'end';
 }) {
-  const [open, setOpen] = React.useState(false);
-  const ref = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const onDown = (event: MouseEvent) => {
-      if (!ref.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
-
   return (
-    <div ref={ref} className="relative">
-      <Tooltip label={label}>
-        <IconButton aria-label={label} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+    <DropdownMenu
+      label={label}
+      items={items}
+      placement={align === 'end' ? 'bottom-end' : 'bottom-start'}
+      trigger={({ ref, open, props }) => (
+        <IconButton
+          ref={ref as React.Ref<HTMLButtonElement>}
+          aria-label={label}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          active={open}
+          {...props}
+        >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
-            <circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" />
+            <circle cx="5" cy="12" r="1.6" />
+            <circle cx="12" cy="12" r="1.6" />
+            <circle cx="19" cy="12" r="1.6" />
           </svg>
         </IconButton>
-      </Tooltip>
-      {open && (
-        <div
-          role="menu"
-          className={cn(
-            'studio-pop absolute z-50 mt-1 min-w-[11rem] overflow-hidden rounded-xl bg-studio-panel p-1 shadow-studio-lg ring-1 ring-studio-line',
-            align === 'end' ? 'end-0' : 'start-0',
-          )}
-        >
-          {items.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setOpen(false);
-                item.onSelect();
-              }}
-              className={cn(
-                'flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-1.5 text-ui-sm font-medium transition-colors duration-[var(--t-state)]',
-                item.tone === 'danger'
-                  ? 'text-studio-danger hover:bg-studio-danger/10'
-                  : 'text-studio-soft hover:bg-studio-raised hover:text-studio-ink',
-              )}
-            >
-              {item.label}
-              {item.hint && <span className="font-studio-mono text-ui-label text-studio-faint" dir="ltr">{item.hint}</span>}
-            </button>
-          ))}
-        </div>
       )}
-    </div>
+    />
   );
 }
 
@@ -485,7 +515,15 @@ export function RepeaterItem({
   );
 }
 
-export function EmptyNote({ title, children, action }: { title?: string; children: React.ReactNode; action?: React.ReactNode }) {
+export function EmptyNote({
+  title,
+  children,
+  action,
+}: {
+  title?: string;
+  children: React.ReactNode;
+  action?: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-studio-line bg-studio-sunken/50 px-5 py-8 text-center">
       {title && <p className="text-ui-base font-bold text-studio-ink">{title}</p>}
