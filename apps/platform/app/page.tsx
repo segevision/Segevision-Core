@@ -32,6 +32,7 @@ import { ThemeToggle } from '../components/theme-toggle';
 import { SignOutButton } from '../components/sign-out-button';
 import { ProjectThumbnail } from '../components/project-thumbnail';
 import { ReadinessRing, ReadinessChecklist } from '../components/readiness-ring';
+import { useDialogFocus } from '../components/floating';
 
 const STATUS_TONE: Record<ProjectStatus, 'neutral' | 'ok' | 'warn' | 'accent'> = {
   draft: 'neutral', review: 'warn', published: 'ok', archived: 'neutral',
@@ -52,6 +53,8 @@ export default function DashboardPage() {
   const [error, setError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState<string | null>(null);
   const [checklistFor, setChecklistFor] = React.useState<Project | null>(null);
+  const checklistRef = React.useRef<HTMLDivElement>(null);
+  useDialogFocus(checklistFor !== null, checklistRef);
 
   const load = React.useCallback(async () => {
     const list = await fetchProjects();
@@ -125,7 +128,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1240px] px-5 py-8 desktop:px-8 desktop:py-12">
+      <main className="mx-auto max-w-[1240px] px-5 pb-[max(4rem,calc(3rem+env(safe-area-inset-bottom)))] pt-8 desktop:px-8 desktop:pt-12">
         {/* Title and tallies share one line: the studio's state should cost no vertical
             space, and a zero is deliberately quiet — an empty bucket is not news. */}
         <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-4">
@@ -163,7 +166,7 @@ export default function DashboardPage() {
         )}
 
         {!summaries && !error && (
-          <div className="mt-7 grid gap-3 tablet:grid-cols-2 desktop:grid-cols-3">
+          <div className="mt-7 grid gap-3 tablet:grid-cols-2 wide:grid-cols-3">
             {[0, 1, 2].map((card) => (
               <div key={card} className="overflow-hidden rounded-xl bg-studio-panel ring-1 ring-studio-line">
                 <Skeleton className="aspect-[16/10] w-full rounded-none" />
@@ -187,7 +190,7 @@ export default function DashboardPage() {
         )}
 
         {summaries && summaries.length > 0 && (
-          <div className="mt-7 flex flex-col gap-8">
+          <div className="mt-7 flex flex-col gap-10">
             {GROUPS.map((group) => {
               const items = (group.status === 'archived' ? archived : visible).filter((item) => item.status === group.status);
               if (items.length === 0) return null;
@@ -197,7 +200,7 @@ export default function DashboardPage() {
                     <GroupLabel>{group.title}</GroupLabel>
                     <span className="text-ui-xs text-studio-faint">{group.note}</span>
                   </div>
-                  <ul className="grid gap-3 tablet:grid-cols-2 desktop:grid-cols-3">
+                  <ul className="grid gap-3 tablet:grid-cols-2 wide:grid-cols-3">
                     {items.map((item) => (
                       <ProjectCard
                         key={item.id}
@@ -221,7 +224,7 @@ export default function DashboardPage() {
             <GroupLabel><span id="quick-start">התחלה מהירה</span></GroupLabel>
             <span className="text-ui-xs text-studio-faint">שלוש תבניות ענפיות</span>
           </div>
-          <ul className="grid gap-2 tablet:grid-cols-3">
+          <ul className="grid gap-2 tablet:grid-cols-2 desktop:grid-cols-3">
             {TEMPLATE_LIST.map((template) => (
               <li key={template.id}>
                 <Link
@@ -241,9 +244,9 @@ export default function DashboardPage() {
       </main>
 
       {checklistFor && (
-        <div className="fixed inset-0 z-[70] flex items-start justify-center p-4 pt-[8vh]">
+        <div className="fixed inset-0 z-[70] flex items-start justify-center p-4 pt-[8dvh]">
           <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={() => setChecklistFor(null)} aria-hidden="true" />
-          <div role="dialog" aria-modal="true" aria-label="מוכנות לפרסום" className="studio-pop studio-scroll relative max-h-[80vh] w-full max-w-[34rem] overflow-y-auto rounded-2xl bg-studio-panel p-5 shadow-studio-lg ring-1 ring-studio-line">
+          <div ref={checklistRef} role="dialog" aria-modal="true" aria-label="מוכנות לפרסום" className="studio-pop studio-scroll relative max-h-[min(80dvh,44rem)] w-full max-w-[34rem] overflow-y-auto rounded-2xl bg-studio-panel p-5 shadow-studio-lg ring-1 ring-studio-line">
             <div className="mb-4 flex items-center justify-between gap-3">
               <h2 className="text-ui-lg font-bold">{checklistFor.name} — מה חסר</h2>
               <IconButton aria-label="סגירה" onClick={() => setChecklistFor(null)}>
@@ -287,14 +290,29 @@ function ProjectCard({
 
   return (
     <li>
+      {/*
+       * No `overflow-hidden` on the card.
+       *
+       * It used to be here to keep the thumbnail inside the rounded corners, and it also
+       * clipped away the card's own action menu and tooltips — they are anchored in the
+       * bottom row, so almost none of a downward-opening menu survived. The clip now lives
+       * on the thumbnail, which is the only child that actually needs one.
+       *
+       * The hover lift stays, but note it makes this element a containing block for fixed
+       * positioning; that is why the floating layer portals out rather than using `fixed`.
+       */}
       <div
         className={cn(
-          'group relative flex h-full flex-col overflow-hidden rounded-xl bg-studio-panel ring-1 ring-studio-line transition-[box-shadow,transform,opacity] duration-[var(--t-state)] ease-studio',
+          'group relative flex h-full flex-col rounded-xl bg-studio-panel ring-1 ring-studio-line transition-[box-shadow,transform,opacity] duration-[var(--t-state)] ease-studio',
           archived ? 'opacity-70 hover:opacity-100' : 'hover:-translate-y-0.5 hover:shadow-studio-md',
           busy && 'pointer-events-none opacity-50',
         )}
       >
-        <Link href={`/projects/${summary.id}`} className="relative block" aria-label={`פתיחת ${summary.name}`}>
+        <Link
+          href={`/projects/${summary.id}`}
+          className="relative block overflow-hidden rounded-t-xl"
+          aria-label={`פתיחת ${summary.name}`}
+        >
           <ProjectThumbnail projectId={summary.id} className="aspect-[16/10] w-full" />
           <span className="absolute start-2.5 top-2.5">
             <StatusPill tone={STATUS_TONE[summary.status]}>{STATUS_LABELS[summary.status]}</StatusPill>
@@ -305,15 +323,22 @@ function ProjectCard({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <Link href={`/projects/${summary.id}`} className="block">
-                <span className="block truncate text-ui-lg font-bold text-studio-ink transition-colors group-hover:text-studio-accent">
+                {/* Two lines then clamp, rather than truncate: a Hebrew project name is
+                    often three or four words, and cutting it at one line loses the part
+                    that distinguishes two projects for the same client. */}
+                <span className="line-clamp-2 text-ui-lg font-bold leading-snug text-studio-ink transition-colors group-hover:text-studio-accent">
                   {summary.name}
                 </span>
               </Link>
               <p className="mt-0.5 truncate text-ui-sm text-studio-muted">
                 {summary.industry || 'ללא ענף'} · {TEMPLATE_LABELS[summary.template]}
               </p>
+              {/* Secondary metadata is the first thing to go when the card is narrow. */}
               <p className="mt-1.5 truncate text-ui-xs text-studio-faint">
-                {sections !== null && `${sections} סקשנים · `}עודכן {formatRelative(summary.updatedAt)}
+                <span className="hidden tablet:inline">
+                  {sections !== null && `${sections} סקשנים · `}
+                </span>
+                עודכן {formatRelative(summary.updatedAt)}
               </p>
             </div>
             {report && (

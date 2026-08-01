@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.27.20",
     "@segevision/core": "workspace:*",
     "@segevision/hooks": "workspace:*",
     "@segevision/icons": "workspace:*",

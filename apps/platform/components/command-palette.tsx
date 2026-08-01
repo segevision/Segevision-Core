@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDialogFocus } from './floating';
 import { cn } from '@segevision/utils';
 import { EDITABLE_FIELDS, SECTION_LABELS, homeSections, type Project } from '@segevision/renderer';
 
@@ -65,6 +66,10 @@ export function CommandPalette({
   onClose: () => void;
   commands: Command[];
 }) {
+  const dialogRef = React.useRef<HTMLDivElement>(null);
+  // The palette already autofocuses its input; this adds the Tab trap and, more
+  // importantly, returns focus to whatever opened it when it closes.
+  useDialogFocus(true, dialogRef);
   const [query, setQuery] = React.useState('');
   const [active, setActive] = React.useState(0);
   const listRef = React.useRef<HTMLUListElement>(null);
@@ -127,13 +132,14 @@ export function CommandPalette({
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-start justify-center p-4 pt-[12vh]">
+    <div className="fixed inset-0 z-[70] flex items-start justify-center p-4 pt-[12dvh]">
       <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label="פלטת פקודות"
-        className="relative flex max-h-[70vh] w-full max-w-[36rem] flex-col overflow-hidden rounded-xl bg-studio-panel shadow-2xl ring-1 ring-studio-line"
+        className="relative flex max-h-[min(70dvh,36rem)] w-full max-w-[36rem] flex-col overflow-hidden rounded-xl bg-studio-panel shadow-2xl ring-1 ring-studio-line"
       >
         <div className="flex items-center gap-3 border-b border-studio-line px-4">
           <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-studio-muted" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
