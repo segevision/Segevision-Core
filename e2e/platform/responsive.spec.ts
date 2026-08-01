@@ -36,13 +36,24 @@ const MATRIX = [
 
 const MENU = '[role="menu"]';
 
+/**
+ * Project grids only.
+ *
+ * `main ul.grid` also matches the static quick-start list, which renders before the
+ * projects have loaded and uses a different column ramp — measuring it silently reports
+ * the wrong answer. Anchoring on a card's project link is what makes the selector mean
+ * "a grid of projects".
+ */
+const PROJECT_GRID = 'main ul.grid:has(a[href^="/projects/"])';
+const PROJECT_CARD = `${PROJECT_GRID} li`;
+
 async function signIn(page: Page) {
   await page.goto('/login');
   await page.getByLabel('כתובת אימייל').fill(EMAIL!);
   await page.getByLabel('סיסמה').fill(PASSWORD!);
   await page.getByRole('button', { name: 'התחברות' }).click();
   await expect(page).toHaveURL(/\/$/, { timeout: 20_000 });
-  await page.waitForSelector('main ul.grid li', { timeout: 20_000 });
+  await page.waitForSelector(PROJECT_CARD, { timeout: 20_000 });
 }
 
 const horizontalOverflow = (page: Page) =>
@@ -58,11 +69,11 @@ test.describe('dashboard responsive', () => {
 
       // The track count, not the card count: a status group holding a single card would
       // otherwise read as "one column" at every width.
-      const columns = await page.evaluate(() => {
-        const grids = Array.from(document.querySelectorAll('main ul.grid'));
+      const columns = await page.evaluate((selector) => {
+        const grids = Array.from(document.querySelectorAll(selector));
         const widest = grids.reduce((a, b) => (b.children.length > a.children.length ? b : a));
         return getComputedStyle(widest).gridTemplateColumns.split(' ').filter(Boolean).length;
-      });
+      }, PROJECT_GRID);
       expect(columns).toBe(size.columns);
       expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
     });
@@ -74,7 +85,7 @@ test.describe('project action menu', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await signIn(page);
 
-    const triggers = page.locator('main ul.grid li button[aria-haspopup="menu"]');
+    const triggers = page.locator(`${PROJECT_CARD} button[aria-haspopup="menu"]`);
     const last = triggers.nth((await triggers.count()) - 1);
 
     // Park the trigger 30px above the bottom, so a downward menu cannot fit.
@@ -88,7 +99,7 @@ test.describe('project action menu', () => {
     const geometry = await page.evaluate(() => {
       const menu = document.querySelector('[role="menu"]')!.getBoundingClientRect();
       const trigger = document
-        .querySelector('main ul.grid li button[aria-haspopup="menu"][aria-expanded="true"]')!
+        .querySelector('button[aria-haspopup="menu"][aria-expanded="true"]')!
         .getBoundingClientRect();
       return {
         flippedUp: menu.bottom <= trigger.top + 1,
@@ -108,7 +119,7 @@ test.describe('project action menu', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await signIn(page);
 
-    const trigger = page.locator('main ul.grid li button[aria-haspopup="menu"]').first();
+    const trigger = page.locator(`${PROJECT_CARD} button[aria-haspopup="menu"]`).first();
     await trigger.click();
     await page.waitForSelector(MENU);
 
@@ -116,7 +127,7 @@ test.describe('project action menu', () => {
       const menuEl = document.querySelector('[role="menu"]')!;
       const menu = menuEl.getBoundingClientRect();
       const triggerEl = document.querySelector(
-        'main ul.grid li button[aria-haspopup="menu"][aria-expanded="true"]',
+        'button[aria-haspopup="menu"][aria-expanded="true"]',
       )!;
       return {
         downward: menu.top >= triggerEl.getBoundingClientRect().top,
@@ -135,7 +146,7 @@ test.describe('project action menu', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await signIn(page);
 
-    const trigger = page.locator('main ul.grid li button[aria-haspopup="menu"]').first();
+    const trigger = page.locator(`${PROJECT_CARD} button[aria-haspopup="menu"]`).first();
     await trigger.click();
     await page.waitForSelector(MENU);
 
@@ -158,7 +169,7 @@ test.describe('project action menu', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await signIn(page);
 
-    const trigger = page.locator('main ul.grid li button[aria-haspopup="menu"]').first();
+    const trigger = page.locator(`${PROJECT_CARD} button[aria-haspopup="menu"]`).first();
     await trigger.click();
     await page.waitForSelector(MENU);
 
@@ -179,7 +190,7 @@ test.describe('project action menu', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await signIn(page);
 
-    const trigger = page.locator('main ul.grid li button[aria-haspopup="menu"]').first();
+    const trigger = page.locator(`${PROJECT_CARD} button[aria-haspopup="menu"]`).first();
     await trigger.click();
     await page.waitForSelector(MENU);
     await page.mouse.click(8, 8);
