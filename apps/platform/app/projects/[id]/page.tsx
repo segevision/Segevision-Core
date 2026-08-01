@@ -39,6 +39,7 @@ import {
 } from '../../../components/studio';
 import { ThemeToggle } from '../../../components/theme-toggle';
 import { SignOutButton } from '../../../components/sign-out-button';
+import { useDialogFocus } from '../../../components/floating';
 import { PreviewPanel, type PreviewSettings } from '../../../components/preview-panel';
 import { useFieldFocus, type FieldFocus, type Updater } from '../../../components/editor-shared';
 import { OverviewPanel } from '../../../components/panel-overview';
@@ -96,6 +97,10 @@ export default function ProjectEditorPage() {
   const [paletteOpen, setPaletteOpen] = React.useState(false);
   const [readinessOpen, setReadinessOpen] = React.useState(false);
   const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
+  const readinessRef = React.useRef<HTMLDivElement>(null);
+  const shortcutsRef = React.useRef<HTMLDivElement>(null);
+  useDialogFocus(readinessOpen, readinessRef);
+  useDialogFocus(shortcutsOpen, shortcutsRef);
   const [focus, setFocus] = React.useState<FieldFocus | null>(null);
   const [selectedPath, setSelectedPath] = React.useState<string | null>(null);
   const [historyToken, setHistoryToken] = React.useState(0);
@@ -428,7 +433,7 @@ export default function ProjectEditorPage() {
 
   if (!project) {
     return (
-      <div className="flex h-screen flex-col gap-3 p-6">
+      <div className="flex h-[100dvh] flex-col gap-3 p-6">
         <div className="studio-skeleton h-12 w-full rounded-xl" />
         <div className="flex flex-1 gap-3">
           <div className="studio-skeleton w-64 rounded-xl" />
@@ -461,7 +466,7 @@ export default function ProjectEditorPage() {
   );
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-studio-canvas">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-studio-canvas">
       {/* ------------------------------------------------------------ top bar */}
       <header className="z-30 flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-studio-line bg-studio-panel px-3 py-2">
         <div className="flex min-w-0 items-center gap-2">
@@ -752,9 +757,9 @@ export default function ProjectEditorPage() {
 
       {/* ------------------------------------------------------- readiness */}
       {readinessOpen && (
-        <div className="fixed inset-0 z-[70] flex items-start justify-center p-4 pt-[8vh]">
+        <div className="fixed inset-0 z-[70] flex items-start justify-center p-4 pt-[8dvh]">
           <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={() => setReadinessOpen(false)} aria-hidden="true" />
-          <div role="dialog" aria-modal="true" aria-label="מוכנות לפרסום" className="studio-pop studio-scroll relative max-h-[80vh] w-full max-w-[34rem] overflow-y-auto rounded-2xl bg-studio-panel p-5 shadow-studio-lg ring-1 ring-studio-line">
+          <div ref={readinessRef} role="dialog" aria-modal="true" aria-label="מוכנות לפרסום" className="studio-pop studio-scroll relative max-h-[min(80dvh,44rem)] w-full max-w-[34rem] overflow-y-auto rounded-2xl bg-studio-panel p-5 shadow-studio-lg ring-1 ring-studio-line">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-ui-lg font-bold">מה חסר לפני פרסום</h2>
               <IconButton aria-label="סגירה" onClick={() => setReadinessOpen(false)}>
@@ -770,7 +775,7 @@ export default function ProjectEditorPage() {
       {shortcutsOpen && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={() => setShortcutsOpen(false)} aria-hidden="true" />
-          <div role="dialog" aria-modal="true" aria-label="קיצורי מקלדת" className="studio-pop relative w-full max-w-[26rem] rounded-2xl bg-studio-panel p-5 shadow-studio-lg ring-1 ring-studio-line">
+          <div ref={shortcutsRef} role="dialog" aria-modal="true" aria-label="קיצורי מקלדת" className="studio-pop relative w-full max-w-[26rem] rounded-2xl bg-studio-panel p-5 shadow-studio-lg ring-1 ring-studio-line">
             <h2 className="mb-3 text-ui-lg font-bold">קיצורי מקלדת</h2>
             <ul className="flex flex-col">
               {[
@@ -788,7 +793,7 @@ export default function ProjectEditorPage() {
       )}
 
       {toast && (
-        <div className="studio-pop pointer-events-none fixed bottom-5 start-1/2 z-[80] -translate-x-1/2 rtl:translate-x-1/2">
+        <div className="studio-pop pointer-events-none fixed bottom-[max(1.25rem,calc(0.75rem+env(safe-area-inset-bottom)))] start-1/2 z-[90] -translate-x-1/2 rtl:translate-x-1/2">
           <p className="rounded-full bg-studio-ink px-4 py-2 text-ui-sm font-semibold text-studio-panel shadow-studio-lg">{toast}</p>
         </div>
       )}

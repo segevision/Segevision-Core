@@ -1,6 +1,8 @@
 import type { Config } from 'tailwindcss';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { tailwindPreset } = require('@segevision/config');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const plugin = require('tailwindcss/plugin');
 
 /**
  * The platform compiles two visual worlds from one stylesheet:
@@ -58,8 +60,10 @@ const config: Config = {
       transitionTimingFunction: { studio: 'cubic-bezier(0.16, 1, 0.3, 1)' },
       boxShadow: {
         'studio-sm': '0 1px 2px 0 hsl(220 20% 4% / 0.06)',
-        'studio-md': '0 4px 12px -2px hsl(220 20% 4% / 0.10), 0 2px 4px -2px hsl(220 20% 4% / 0.06)',
-        'studio-lg': '0 12px 32px -8px hsl(220 20% 4% / 0.18), 0 4px 8px -4px hsl(220 20% 4% / 0.08)',
+        'studio-md':
+          '0 4px 12px -2px hsl(220 20% 4% / 0.10), 0 2px 4px -2px hsl(220 20% 4% / 0.06)',
+        'studio-lg':
+          '0 12px 32px -8px hsl(220 20% 4% / 0.18), 0 4px 8px -4px hsl(220 20% 4% / 0.08)',
         'studio-canvas': '0 18px 50px -18px hsl(220 30% 4% / 0.42)',
       },
       fontFamily: {
@@ -69,6 +73,18 @@ const config: Config = {
       },
     },
   },
+  plugins: [
+    /*
+     * `touch:` — a coarse pointer, i.e. a finger rather than a mouse.
+     *
+     * Used to enlarge hit areas to the 44px minimum without enlarging the buttons
+     * themselves, which would push every toolbar in the studio apart on desktop where the
+     * extra size buys nothing.
+     */
+    plugin(({ addVariant }: { addVariant: (name: string, definition: string) => void }) => {
+      addVariant('touch', '@media (pointer: coarse)');
+    }),
+  ],
 };
 
 export default config;
