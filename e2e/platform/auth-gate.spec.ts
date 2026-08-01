@@ -58,13 +58,13 @@ test.describe('login page', () => {
 
     await expect(page.getByRole('heading', { name: 'התחברות לפלטפורמה' })).toBeVisible();
     await expect(page.getByLabel('כתובת אימייל')).toBeVisible();
-    await expect(page.getByLabel('סיסמה')).toBeVisible();
+    await expect(page.getByLabel('סיסמה', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'התחברות' })).toBeVisible();
 
     // Latin-content fields stay LTR inside the RTL page, or the caret lands in the wrong
     // place on every keystroke.
     await expect(page.getByLabel('כתובת אימייל')).toHaveAttribute('dir', 'ltr');
-    await expect(page.getByLabel('סיסמה')).toHaveAttribute('dir', 'ltr');
+    await expect(page.getByLabel('סיסמה', { exact: true })).toHaveAttribute('dir', 'ltr');
   });
 
   test('does not offer self sign-up', async ({ page }) => {
@@ -79,7 +79,7 @@ test.describe('login page', () => {
     await page.goto('/login');
 
     await page.getByLabel('כתובת אימייל').fill('nobody@segevision.invalid');
-    await page.getByLabel('סיסמה').fill('definitely-not-the-password');
+    await page.getByLabel('סיסמה', { exact: true }).fill('definitely-not-the-password');
     await page.getByRole('button', { name: 'התחברות' }).click();
 
     // Scoped to the form: Next renders its own role="alert" route announcer on every page,
