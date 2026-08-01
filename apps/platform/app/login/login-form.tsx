@@ -142,6 +142,14 @@ export function LoginForm({ next }: { next: string }) {
  */
 function PasswordField({ invalid }: { invalid: boolean }) {
   const [revealed, setRevealed] = React.useState(false);
+  /**
+   * Whether the field currently holds anything — a boolean, never the value.
+   *
+   * The toggle appears once there is something to reveal, and an empty field carries no
+   * dead control. Tracking only the emptiness keeps the input uncontrolled, so the password
+   * itself still never enters React state.
+   */
+  const [hasValue, setHasValue] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const toggle = () => {
@@ -183,48 +191,59 @@ function PasswordField({ invalid }: { invalid: boolean }) {
         autoCorrect="off"
         required
         aria-invalid={invalid ? true : undefined}
+        onChange={(event) => {
+          const filled = event.target.value.length > 0;
+          setHasValue(filled);
+          // Clearing the field re-masks it, so the next thing typed is never revealed by a
+          // toggle the user left on and forgot about.
+          if (!filled) setRevealed(false);
+        }}
         className="h-11 w-full rounded-md border border-studio-line bg-studio-raised ps-3 pe-11 text-start text-ui-base text-studio-ink transition-colors hover:border-studio-line-strong focus-visible:border-studio-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/40"
       />
 
-      <button
-        type="button"
-        // Suppresses the focus grab, so a mouse click leaves the caret exactly where it
-        // was. Keyboard activation still lands on the button, and the handler returns
-        // focus to the input afterwards.
-        onMouseDown={(event) => event.preventDefault()}
-        onClick={toggle}
-        aria-label={label}
-        aria-controls="password"
-        title={label}
-        className='absolute start-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded text-studio-muted transition-colors hover:bg-studio-line/40 hover:text-studio-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent touch:after:absolute touch:after:left-1/2 touch:after:top-1/2 touch:after:h-11 touch:after:w-11 touch:after:-translate-x-1/2 touch:after:-translate-y-1/2 touch:after:content-[""]'
-      >
-        {/* Both glyphs share a viewBox and stroke weight, so swapping them cannot nudge
-            anything by a pixel. */}
-        <svg
-          viewBox="0 0 24 24"
-          className="h-[18px] w-[18px]"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.7"
-          aria-hidden="true"
+      {/* Rendered only when the field holds something. The reserved padding above stays
+          regardless, so the field never changes size as the button comes and goes. */}
+      {hasValue ? (
+        <button
+          type="button"
+          // Suppresses the focus grab, so a mouse click leaves the caret exactly where it
+          // was. Keyboard activation still lands on the button, and the handler returns
+          // focus to the input afterwards.
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={toggle}
+          aria-label={label}
+          aria-controls="password"
+          title={label}
+          className='absolute start-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded text-studio-muted transition-colors hover:bg-studio-line/40 hover:text-studio-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent touch:after:absolute touch:after:left-1/2 touch:after:top-1/2 touch:after:h-11 touch:after:w-11 touch:after:-translate-x-1/2 touch:after:-translate-y-1/2 touch:after:content-[""]'
         >
-          {revealed ? (
-            <>
-              <path
-                d="M2 12s3.6-6 10-6c1.7 0 3.2.4 4.5 1M22 12s-3.6 6-10 6c-1.8 0-3.4-.5-4.7-1.2"
-                strokeLinecap="round"
-              />
-              <circle cx="12" cy="12" r="2.6" />
-              <path d="m3.5 3.5 17 17" strokeLinecap="round" />
-            </>
-          ) : (
-            <>
-              <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6" strokeLinecap="round" />
-              <circle cx="12" cy="12" r="2.6" />
-            </>
-          )}
-        </svg>
-      </button>
+          {/* Both glyphs share a viewBox and stroke weight, so swapping them cannot nudge
+            anything by a pixel. */}
+          <svg
+            viewBox="0 0 24 24"
+            className="h-[18px] w-[18px]"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            aria-hidden="true"
+          >
+            {revealed ? (
+              <>
+                <path
+                  d="M2 12s3.6-6 10-6c1.7 0 3.2.4 4.5 1M22 12s-3.6 6-10 6c-1.8 0-3.4-.5-4.7-1.2"
+                  strokeLinecap="round"
+                />
+                <circle cx="12" cy="12" r="2.6" />
+                <path d="m3.5 3.5 17 17" strokeLinecap="round" />
+              </>
+            ) : (
+              <>
+                <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6" strokeLinecap="round" />
+                <circle cx="12" cy="12" r="2.6" />
+              </>
+            )}
+          </svg>
+        </button>
+      ) : null}
     </div>
   );
 }
