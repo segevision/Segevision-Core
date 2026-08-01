@@ -50,7 +50,7 @@ const PROJECT_CARD = `${PROJECT_GRID} li`;
 async function signIn(page: Page) {
   await page.goto('/login');
   await page.getByLabel('כתובת אימייל').fill(EMAIL!);
-  await page.getByLabel('סיסמה').fill(PASSWORD!);
+  await page.getByLabel('סיסמה', { exact: true }).fill(PASSWORD!);
   await page.getByRole('button', { name: 'התחברות' }).click();
   await expect(page).toHaveURL(/\/$/, { timeout: 20_000 });
   await page.waitForSelector(PROJECT_CARD, { timeout: 20_000 });
