@@ -39,7 +39,7 @@ const PNG_1PX = Buffer.from(
 async function signIn(page: Page): Promise<void> {
   await page.goto('/login');
   await page.getByLabel('כתובת אימייל').fill(EMAIL!);
-  await page.getByLabel('סיסמה').fill(PASSWORD!);
+  await page.getByLabel('סיסמה', { exact: true }).fill(PASSWORD!);
   await page.getByRole('button', { name: 'התחברות' }).click();
   await expect(page).toHaveURL(/\/$/, { timeout: 20_000 });
 }
