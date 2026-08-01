@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!--
+    Studio favicon. Next serves app/icon.svg and injects the <link rel="icon">, which is
+    what stops the browser probing /favicon.ico and logging a 404.
+
+    Drawn rather than set as text: an SVG <text> favicon depends on a font being present at
+    render time, and falls back differently on every platform.
+  -->
+  <rect width="32" height="32" rx="7" fill="#4A5AE8" />
+  <path
+    d="M20.5 11.2c-1.1-1-2.7-1.6-4.5-1.6-2.8 0-4.6 1.3-4.6 3.2 0 1.9 1.6 2.7 4.6 3.2 3 .5 4.6 1.3 4.6 3.2 0 1.9-1.8 3.2-4.6 3.2-1.8 0-3.4-.6-4.5-1.6"
+    fill="none"
+    stroke="#fff"
+    stroke-width="2.6"
+    stroke-linecap="round"
+  />
+</svg>
