@@ -27,3 +27,4 @@ playwright-report-platform
 # Temporary
 *.tmp
 *.bak
+.vercel

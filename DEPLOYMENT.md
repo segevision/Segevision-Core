@@ -244,6 +244,7 @@ infrastructure. Do them in this order; every step is verifiable before the next.
 | --- | --- |
 | `projects` table, constraints, indexes, RLS policies | `supabase/migrations/20260730120000_projects.sql` |
 | `project-media` bucket + Storage RLS policies | `supabase/migrations/20260730120100_project_media_bucket.sql` |
+| `project_backups` table + RLS (pre-migration snapshots) | `supabase/migrations/20260801130000_project_backups.sql` |
 | Browser / server / middleware Supabase clients | `apps/platform/lib/supabase/` |
 | `SupabaseProjectStore` | `apps/platform/lib/stores/supabase-project-store.ts` |
 | `SupabaseMediaStore` | `apps/platform/lib/stores/supabase-media-store.ts` |
@@ -254,9 +255,20 @@ infrastructure. Do them in this order; every step is verifiable before the next.
 
 ### 5.2 Steps
 
-1. **Apply the migrations.** Either `supabase link --project-ref <ref> && supabase db push`,
-   or paste both files into the dashboard SQL editor in filename order.
-   Verify: `select * from pg_policies where tablename = 'projects';` returns four rows.
+1. **Apply the migrations, in filename order.** Either
+   `supabase link --project-ref <ref> && supabase db push`, or paste each file into the
+   dashboard SQL editor:
+
+   | Order | File |
+   | --- | --- |
+   | 1 | `20260730120000_projects.sql` |
+   | 2 | `20260730120100_project_media_bucket.sql` |
+   | 3 | `20260801130000_project_backups.sql` |
+
+   Order matters only in that `projects` must exist first; the other two are independent
+   of each other. Verify:
+   `select tablename, count(*) from pg_policies where tablename in ('projects','project_backups') group by 1;`
+   returns `projects` = 4 and `project_backups` = 2.
 2. **Create the studio account.** Authentication → Users → Add user, with a real email and
    a strong password. Do **not** enable public sign-up; there is no sign-up UI, and adding
    one would turn a private studio tool into an open one.
@@ -274,6 +286,23 @@ infrastructure. Do them in this order; every step is verifiable before the next.
    All specs run; the signed-in ones no longer skip.
 7. **Only then** create the Vercel project with the settings in §4.1 and §4.2, and turn on
    Deployment Protection (§4.3) *before* the first deploy.
+
+### 5.2a Environment isolation — a standing rule
+
+Preview and Production must never share a Supabase project. Feature branches, `develop`
+and the Vercel Preview environment use a dedicated staging project with staging-only
+users and throwaway data; `main`, the Production environment and `studio.segevision.com`
+use the production project. Real client data is never copied into staging.
+
+**Preview is never rolled back by pointing it at Production.** A Preview rollback is: the
+previous Preview deployment, the previous staging environment values, a staging database
+restore or reset, and a code revert on the branch. Production Supabase is not a fallback
+database for anything.
+
+The reason is mechanical, not stylistic. Every Zod object in the schema strips unknown
+keys, so a document written by a newer schema and then read by older code loses the fields
+that code does not know about — silently, with no error. A shared database turns any
+version skew between Preview and Production into data loss.
 
 ### 5.3 Rollback
 
